@@ -74,13 +74,9 @@ class Units:
         return val * 304.8
 
 def get_floor_thickness(floor): return floor.get_Parameter(DB.BuiltInParameter.FLOOR_ATTR_THICKNESS_PARAM).AsDouble()
-
 def original_floor_thickness(floors): return [get_floor_thickness(floor) for floor in floors]
-
 def floor_height_offset(floor): return floor.get_Parameter(DB.BuiltInParameter.FLOOR_HEIGHTABOVELEVEL_PARAM).AsDouble()
-
 def original_floor_height_offset(floors): return [floor_height_offset(floor) for floor in floors]
-
 def get_floors_openings(openings, floor): return [opening for opening in openings if opening.Host.Id == floor.Id]
 
 def main():
@@ -117,7 +113,6 @@ def main():
     og_floor_height_offset = original_floor_height_offset(linked_floors_copy)
     # select workset for geometry being copied to be assigned to
     workset = Selection.select_workset(doc, DB.WorksetKind.UserWorkset)
-    # elements_copy_list = List[DB.ElementId](element_ids_copy)
     # floor type for copied floors to be assigned to
     floor_type = Selection.Select_floor_type(doc)
     copy_option = GUI.UI_two_options(title="Copy Structural Slabs For Arch", main_instruction="Copy Above Or Below?", commandlink1="Above", commandlink2="Below")
@@ -126,7 +121,6 @@ def main():
     all_copied_element_ids = []
     with db.Transaction('copying floors and their openings'):
         for floorElement in linked_floors_copy:
-            # floorElement = link_doc.GetElement(floor.Id)
             floor_openings = get_floors_openings(linked_openings, floorElement)
             floor_and_openings_copy = [opening.Id for opening in floor_openings]
             floor_and_openings_copy.append(floorElement.Id)
@@ -139,7 +133,6 @@ def main():
     copied_elements = filter(lambda e: doc.GetElement(e).Category.Name == "Floors", flat_list)
     # getting original floor thicknesses
     og_floor_thickness = original_floor_thickness([doc.GetElement(e_id) for e_id in copied_elements])
-    # og_floor_height_offset = original_floor_height_offset(link_doc.GetElement(e_id) for e_id in element_ids_copy)
     # setting copied floors workset & comment parameter
     for e_id, og_thickness, og_offset in zip(copied_elements, og_floor_thickness, og_floor_height_offset):
         element = doc.GetElement(e_id)
@@ -167,8 +160,6 @@ if __name__ == '__main__':
 
 # TODO: when copy floors if level in linked model copying from does not exist then a different level the floor is copied to which affects location 
 #  slab is coped to, (hydro vaults) - need to figure out level difference and update difference ...?
-  
-# TODO: should make a way to copy slabs by slab name contains "slab" as example
 
 
 
